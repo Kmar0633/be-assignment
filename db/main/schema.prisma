@@ -14,39 +14,47 @@ datasource db {
 }
 
 model User {
-  id              Int             @id @default(autoincrement())
-  username        String          @unique
+  id              Int              @id @default(autoincrement())
+  username        String           @unique
   password        String
   paymentAccounts PaymentAccount[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  Transaction     Transaction[]
 }
 
 model PaymentAccount {
-  id              Int             @id @default(autoincrement())
-  type            String          // e.g., credit, debit, loan
-  balance         Float           @default(0)
-  userId          Int
-  user            User            @relation(fields: [userId], references: [id])
-  paymentHistory  PaymentHistory[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id             Int              @id @default(autoincrement())
+  type           String // e.g., credit, debit, loan
+  balance        Float            @default(0)
+  userId         Int
+  user           User             @relation(fields: [userId], references: [id])
+  paymentHistory PaymentHistory[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+ 
 }
 
 model PaymentHistory {
-  id              Int             @id @default(autoincrement())
-  amount          Float
-  timestamp       DateTime        @default(now())
+  id               Int            @id @default(autoincrement())
+  amount           Float
+  timestamp        DateTime       @default(now())
   paymentAccountId Int
-  paymentAccount  PaymentAccount  @relation(fields: [paymentAccountId], references: [id])
+  paymentAccount   PaymentAccount @relation(fields: [paymentAccountId], references: [id])
+   Transaction    Transaction[]
 }
 
 model Transaction {
-  id          Int       @id @default(autoincrement())
-  amount      Float
-  timestamp   DateTime  @default(now())
-  toAddress   String
-  status      String    // e.g., pending, completed, failed
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            Int             @id @default(autoincrement())
+  amount        Float
+  timestamp     DateTime        @default(now())
+  toAddressName String?
+  toAddress     User?   @relation(fields: [toAddressName], references: [username])
+  currency         String
+  type             String
+  status           String // e.g., pending, completed, failed
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  paymentHistory   PaymentHistory? @relation(fields: [paymentHistoryId], references: [id])
+  paymentHistoryId Int?
 }

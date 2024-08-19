@@ -13,7 +13,7 @@ export default async (req, res, next) => {
         message: "Unauthorized, No token provided",
       });
     }
-    // const validate = await service.validate(token);
+
     const validate = jwt.verify(token, config.jwtSecret);
 
     if (!validate) {
@@ -22,49 +22,21 @@ export default async (req, res, next) => {
         message: "invalid token",
       });
     }
-    let userRaw = {};
-    let user = {};
 
-    userRaw = await main.masterUser.findUnique({
+    const rawUser = await main.user.findUnique({
       where: {
-        username: validate.username,
+        username:validate.username,
       },
       include: {
-        userLobMap: { include: { MasterLob: true } },
-        userCountryMap: {
-          select: {
-            MasterCountry: {
-              select: { id: true, codeCountry: true, nameCountry: true },
-            },
-          },
-        },
-        masterRole: {
+        paymentAccounts: {
           include: {
-            rolePermissionMap: {
-              include: {
-                masterPermission: true,
-              },
-            },
+            paymentHistory: true,
           },
         },
       },
     });
-    user = {
-      id: userRaw.id,
-      username: userRaw.username,
-      email: userRaw.email,
-      lobModel: userRaw.userLobMap.map((rp) => rp.MasterLob),
-      lob: userRaw.userLobMap.map((rp) => rp.MasterLob.nameLob),
-      role: userRaw.masterRole.name,
-      countryModel: userRaw.userCountryMap.map((rp) => rp.MasterCountry),
-      country: userRaw.userCountryMap.map((rp) => rp.MasterCountry.codeCountry),
-      permission: userRaw.masterRole.rolePermissionMap.map(
-        (rp) => rp.masterPermission.name
-      ),
-      ...validate,
-    };
-
-    req.user = user;
+    
+    req.user = rawUser;
 
     next();
   } catch (e) {

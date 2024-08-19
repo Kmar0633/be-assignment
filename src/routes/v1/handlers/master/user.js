@@ -35,9 +35,7 @@ const login = async (req, res, next) => {
     }
 
     let token = "";
-
     const data = {username: username}
-    
     token = jwt.sign(data, config.jwtSecret);
 
     return res.json({
