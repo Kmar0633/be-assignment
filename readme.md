@@ -5,6 +5,17 @@ My Implementation of Be-Assignment App
 
 ## Set Up
 
+To Install this app, you need to run
+
+```
+  npm i
+```
+
+## Run app
+```
+  npm run dev
+```
+
 To run this app, you need to run
 
 ```
