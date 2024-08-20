@@ -15,7 +15,7 @@ To run this app, you need to run
 
 #### Sign up
 
-```http
+```
   POST /be-assignment/v1/accounts/signup
 ```
 
@@ -28,7 +28,7 @@ To run this app, you need to run
 
 #### Login Account
 
-```http
+```
   POST /be-assignment/v1/accounts/login
 ```
 
@@ -40,7 +40,7 @@ To run this app, you need to run
 
 #### Fetching all accounts and transactions of a user
 
-```http
+```
   GET /be-assignment/v1/accounts/:username/payment-accounts
 ```
 
@@ -56,7 +56,7 @@ To run this app, you need to run
 
 #### Withdrawing Money from user account
 
-```http
+```
   POST /be-assignment/v1/payments/withdraw
 ```
 
@@ -73,7 +73,7 @@ To run this app, you need to run
 
 #### Depositing Money into user account
 
-```http
+```
   POST /be-assignment/v1/payments/send
 ```
 
