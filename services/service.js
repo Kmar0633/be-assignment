@@ -7,22 +7,56 @@ async function processTransaction(transaction) {
       const userPaymentAccount = transaction.paymentAccounts.find(
         (account) => account.id === transaction.toAddress
       );
-  /*     if (userPaymentAccount.balance < transaction.amount) {
+      if (!userPaymentAccount) {
+        throw new Error("Payment account not found");
+      }
+      if (
+        transaction.transactionType === "Withdraw" &&
+        userPaymentAccount.balance < transaction.amount
+      ) {
+        throw new Error(
+          "Insufficient Funds. Withdrawn amount exceeeds current balance"
+        );
+      }
+
+      const account = await main.paymentAccount.findUnique({
+        where: { id: transaction.toAddress },
+        include: {
+          paymentHistory: true,
+        },
+      });
+      
+
+      const paymentHistoryOne = await main.paymentHistory.findFirst({
+        where: { paymentAccountId: account.id },
+      });
+
+      if (!paymentHistoryOne) {
+        const paymentHistory = await main.paymentHistory.create({
+          data: { paymentAccountId: account.id, amount: 0 },
+        });
+      }
+
+      const paymentHistorySelect = await main.paymentHistory.findFirst({
+        where: { paymentAccountId: account.id },
+      });
+     
+      /*     if (userPaymentAccount.balance < transaction.amount) {
         return res.status(500).json({
           status: "error",
           message: "Transfer failed: The amount exceeds your current balance.",
         });
       } */
-     console.log(userPaymentAccount)
-        userPaymentAccount
+
       const newTransaction = await main.transaction.create({
         data: {
           amount: transaction.amount,
-          toAddress: userPaymentAccount,
-          currency:transaction.currency,
+          toAddressName: transaction.username,
+          currency: transaction.currency,
           status: "pending",
-          type:"Deposit",
+          type: transaction.transactionType,
           timestamp: new Date(),
+          paymentHistoryId: paymentHistorySelect.id,
         },
       });
 
@@ -36,14 +70,17 @@ async function processTransaction(transaction) {
           },
         });
 
-        const updateUser = await main.user.update({
-            where: {
-                username: transaction.username,
-            },
-            data: {
-              balance: userPaymentAccount.balance+amount,
-            },
-          });
+        const updatePaymentAccount = await main.paymentAccount.update({
+          where: {
+            id: transaction.toAddress,
+          },
+          data: {
+            balance:
+              transaction.transactionType === "Deposit"
+                ? account.balance + transaction.amount
+                : account.balance - transaction.amount,
+          },
+        });
         console.log("Transaction processed for:", processedTransaction);
         resolve(processedTransaction);
       }, 30000); // 30 seconds
